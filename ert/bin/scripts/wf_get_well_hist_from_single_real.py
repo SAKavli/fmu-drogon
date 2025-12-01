@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
  Get last value of wopth, wwpth and wgpth
  Instead of 'last' one can input a date explicitly (make sure it exists in the data set)
@@ -18,14 +19,13 @@ https://github.com/equinor/fmu-ensemble/blob/master/src/fmu/ensemble/observation
 import argparse
 import os
 
-# from __future__ import print_function
 from fmu import ensemble
 
 #####################
 # case settings #####
 
 parser = argparse.ArgumentParser(
-    description="Get WOPTH, WWPTH and WGPTH values at given date from a single realisation"
+    description="Get WOPTH, WWPTH and WGPTH values at given date from a single realisation",
 )
 parser.add_argument(
     "-s",
@@ -35,13 +35,22 @@ parser.add_argument(
 )
 parser.add_argument("-c", "--casedir", required=True, help="name of casedir to use")
 parser.add_argument(
-    "-i", "--iterdir", default="iter-0", help="name of iterdir to use (default=iter-0)"
+    "-i",
+    "--iterdir",
+    default="iter-0",
+    help="name of iterdir to use (default=iter-0)",
 )
 parser.add_argument(
-    "-r", "--real", default=0, help="realization number to extract data from"
+    "-r",
+    "--real",
+    default=0,
+    help="realization number to extract data from",
 )
 parser.add_argument(
-    "-d", "--misfitdate", default="last", help="date to use, yyyy-mm-dd (default=last)"
+    "-d",
+    "--misfitdate",
+    default="last",
+    help="date to use, yyyy-mm-dd (default=last)",
 )
 
 args = parser.parse_args()

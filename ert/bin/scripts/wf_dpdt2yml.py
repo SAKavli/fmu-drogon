@@ -35,10 +35,10 @@ dpdt_name = "Pressure derivative"
 
 df = pd.read_csv(dpdt_file_saphir, sep="\t")
 df = df.iloc[1:]
-df.reset_index(inplace=True, drop=True)
-df[time_name].replace("", np.nan, inplace=True)
-df.dropna(subset=[time_name], inplace=True)
-df[dpdt_name].replace(np.nan, 0, inplace=True)
+df = df.reset_index(drop=True)
+df[time_name] = df[time_name].replace("", np.nan)
+df = df.dropna(subset=[time_name])
+df[dpdt_name] = df[dpdt_name].replace(np.nan, 0)
 
 obs_group = {}
 obs_group["key"] = "dpd(supt)_w2"
@@ -48,8 +48,7 @@ obs_values = {}
 
 for i in df.index:
     calc_unc = float(df[dpdt_name][i]) * 0.1
-    if calc_unc < min_unc_value:
-        calc_unc = min_unc_value
+    calc_unc = max(calc_unc, min_unc_value)
     if index_list[0] != "None":
         index_list_int = list(map(int, index_list))
         index_list_set = set(index_list_int)
@@ -66,7 +65,7 @@ for i in df.index:
         obs_values_copy = obs_values.copy()
         obs_group["observations"].append(obs_values_copy)
 
-data = dict(general=[obs_group])
+data = {"general": [obs_group]}
 
 with open(dpdt_file_yml, "w") as file:
     yaml.dump(data, file, default_flow_style=False)

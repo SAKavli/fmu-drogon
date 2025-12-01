@@ -45,7 +45,9 @@ parser.add_argument(
     help="Name of single dates list in global variable file",
 )
 parser.add_argument(
-    "diffdates_list", type=str, help="Name of diffdates list in global variable file"
+    "diffdates_list",
+    type=str,
+    help="Name of diffdates list in global variable file",
 )
 
 args = parser.parse_args()
@@ -80,7 +82,10 @@ with open(diffdates_output_file, "w") as f_diff:
     for dates in CFG_GLOBAL[DIFF_DATES]:
         print(dates[0], dates[1])
         f_diff.write(
-            str(dates[0]).replace("-", "") + " " + str(dates[1]).replace("-", "") + "\n"
+            str(dates[0]).replace("-", "")
+            + " "
+            + str(dates[1]).replace("-", "")
+            + "\n",
         )
 
 

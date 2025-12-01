@@ -74,25 +74,22 @@ def load_txt(fullpath, prefix=""):
 def save_txt(fullpath, parameters):
     """Save parameters dictionary into text file"""
     with open(fullpath, "w") as file_handle:
-        for key in parameters:
-            file_handle.write(f"{key} {parameters[key]}\n")
+        file_handle.writelines(f"{key} {parameters[key]}\n" for key in parameters)
 
 
 def create_parser():
     """Create parser"""
     parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument(
-        "path_base", type=str, help="Path to parameters.txt in current ensembles"
+        "path_base",
+        type=str,
+        help="Path to parameters.txt in current ensembles",
     )
     parser.add_argument(
-        "path_prepend", type=str, help="Path to parameters.txt in the other ensembles"
+        "path_prepend",
+        type=str,
+        help="Path to parameters.txt in the other ensembles",
     )
-    # parser.add_argument(
-    #     "--prefix",
-    #     type=str,
-    #     default="",
-    #     help="Text to be prefixed on prepended parameters",
-    # )
     return parser
 
 
@@ -117,18 +114,19 @@ def main(args=None):
                 raise ValueError(
                     "One or more parameter(s) are in conflict.\n"
                     f"The first parameter is {key} which is changed from "
-                    f"{dict_prepend[key]} to {dict_base[key]}"
+                    f"{dict_prepend[key]} to {dict_base[key]}",
                 )
             else:
                 print(
                     f"Warning: The parameter {key} exists in both parameters.txt\n"
-                    "This should preferably be avoided"
+                    "This should preferably be avoided",
                 )
         else:
             dict_prepend[key] = dict_base[key]
     if os.path.exists(path_base + "/parameters.txt"):
         shutil.copyfile(
-            path_base + "/parameters.txt", path_base + "/parameters_original.txt"
+            path_base + "/parameters.txt",
+            path_base + "/parameters_original.txt",
         )
     save_txt(path_base + "/parameters.txt", dict_prepend)
 

@@ -5,10 +5,10 @@ import os
 from collections import defaultdict
 
 import numpy as np
+from ert.data import MeasuredData
 from pandas import DataFrame
 
 from ert import ErtScript
-from ert.data import MeasuredData
 
 
 class ExportMisfit(ErtScript):
@@ -20,7 +20,7 @@ class ExportMisfit(ErtScript):
 
         measured_data = MeasuredData(
             self.ensemble,
-            keys=sorted(list(self.ensemble.experiment.observations.keys())),
+            keys=sorted(self.ensemble.experiment.observations.keys()),
         )
         misfit = DataFrame()
         for name in measured_data.data.columns.unique(0):
@@ -37,7 +37,7 @@ class ExportMisfit(ErtScript):
         misfit.index.name = "Realization"
         return misfit
 
-    def run(self, output_path, source_case=None):
+    def run(self, output_path):
         output_path = output_path + "/" + self.ensemble.name
         if not os.path.isdir(output_path):
             os.makedirs(output_path, exist_ok=True)
@@ -50,7 +50,7 @@ class ExportMisfit(ErtScript):
         dict_obs_data_key = defaultdict(list)
         for key in obs:
             if "name" in obs[key].coords:
-                data_key = obs[key].coords["name"].values[0]
+                data_key = obs[key].coords["name"].to_numpy()[0]
             else:
                 data_key = key
             dict_obs_data_key[data_key].append(key)
@@ -61,10 +61,11 @@ class ExportMisfit(ErtScript):
         for key in dict_obs_data_key:
             df_per_real_obs[key] = np.sqrt(
                 misfit[["MISFIT:" + x for x in dict_obs_data_key[key]]].sum(axis=1)
-                / misfit[["COUNT:" + x for x in dict_obs_data_key[key]]].sum(axis=1)
+                / misfit[["COUNT:" + x for x in dict_obs_data_key[key]]].sum(axis=1),
             )
         df_per_real_obs.to_csv(
-            os.path.join(output_path, "misfit_one_value_per_real_per_well.csv"), sep=","
+            os.path.join(output_path, "misfit_one_value_per_real_per_well.csv"),
+            sep=",",
         )
 
         df_per_obs = DataFrame(index=range(1))
@@ -72,23 +73,26 @@ class ExportMisfit(ErtScript):
         for col in df_per_real_obs.columns:
             df_per_obs[col] = df_per_real_obs[col].mean()
         df_per_obs.to_csv(
-            os.path.join(output_path, "misfit_one_value_per_well.csv"), sep=","
+            os.path.join(output_path, "misfit_one_value_per_well.csv"),
+            sep=",",
         )
 
         df_per_real_sum = misfit[["MISFIT:TOTAL"]].rename(
-            columns={"MISFIT:TOTAL": "Total misfit"}
+            columns={"MISFIT:TOTAL": "Total misfit"},
         )
         df_per_real_sum.to_csv(
-            os.path.join(output_path, "misfit_per_real_SUMS.csv"), sep=","
+            os.path.join(output_path, "misfit_per_real_SUMS.csv"),
+            sep=",",
         )
 
         df_per_real_norm = DataFrame()
         df_per_real_norm["Norm misfit"] = np.sqrt(
-            misfit[["MISFIT:" + x for x in obs.keys()]].sum(axis=1)
-            / misfit[["COUNT:" + x for x in obs.keys()]].sum(axis=1)
+            misfit[["MISFIT:" + x for x in obs]].sum(axis=1)
+            / misfit[["COUNT:" + x for x in obs]].sum(axis=1),
         )
         df_per_real_norm.to_csv(
-            os.path.join(output_path, "misfit_per_real_NORM.csv"), sep=","
+            os.path.join(output_path, "misfit_per_real_NORM.csv"),
+            sep=",",
         )
 
         print(f"Output saved to: {output_path}")
