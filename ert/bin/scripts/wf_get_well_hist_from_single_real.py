@@ -11,9 +11,6 @@
 doc:
 https://equinor.github.io/fmu-ensemble/readme.html
 https://github.com/equinor/fmu-ensemble/blob/master/src/fmu/ensemble/observations.py
-
-
-
 """
 
 import argparse
@@ -21,73 +18,63 @@ import os
 
 from fmu import ensemble
 
-#####################
-# case settings #####
+def parse_args() -> argparse.Namespace:
 
-parser = argparse.ArgumentParser(
-    description="Get WOPTH, WWPTH and WGPTH values at given date from a single realisation",
-)
-parser.add_argument(
-    "-s",
-    "--scratch",
-    required=True,
-    help="scratch path to use,including username. Example: /scratch/troll_fmu/rnyb",
-)
-parser.add_argument("-c", "--casedir", required=True, help="name of casedir to use")
-parser.add_argument(
-    "-i",
-    "--iterdir",
-    default="iter-0",
-    help="name of iterdir to use (default=iter-0)",
-)
-parser.add_argument(
-    "-r",
-    "--real",
-    default=0,
-    help="realization number to extract data from",
-)
-parser.add_argument(
-    "-d",
-    "--misfitdate",
-    default="last",
-    help="date to use, yyyy-mm-dd (default=last)",
-)
+    parser = argparse.ArgumentParser(
+        description="Get WOPTH, WWPTH and WGPTH values at given date from a single realisation",
+    )
+    parser.add_argument(
+        "-s",
+        "--scratch",
+        required=True,
+        help="scratch path to use,including username. Example: /scratch/troll_fmu/rnyb",
+    )
+    parser.add_argument("-c", "--casedir", required=True, help="name of casedir to use")
+    parser.add_argument(
+        "-i",
+        "--iterdir",
+        default="iter-0",
+        help="name of iterdir to use (default=iter-0)",
+    )
+    parser.add_argument(
+        "-r",
+        "--real",
+        default=0,
+        help="realization number to extract data from",
+    )
+    parser.add_argument(
+        "-d",
+        "--misfitdate",
+        default="last",
+        help="date to use, yyyy-mm-dd (default=last)",
+    )
 
-args = parser.parse_args()
-
-scratch = args.scratch
-casedir = args.casedir
-iterdir = args.iterdir
-real = args.real
-misfitdate = args.misfitdate
-
-############
-# MAIN #####
-
-path = scratch + "/" + casedir + "/realization-" + str(real) + "/" + iterdir
-
-print("Working with ensemble: ", path)
-
-ensset = ensemble.EnsembleSet("my_ensemble_set", frompath=path)
-
-ens = ensemble.ScratchEnsemble("single_real", path)
-
-smry = ens.get_smry(column_keys=["W*PTH:*"], time_index=misfitdate)
+    return parser.parse_args()
 
 
-# output data to file
-filepath = scratch + "/" + casedir + "/share/misfit/"
-filename = "wopth_wwpth_wgpth_" + misfitdate + ".csv"
 
-if not os.path.exists(filepath):
-    os.makedirs(filepath)
+def main() -> None:
+    args = parse_args()
+    path = args.scratch + "/" + args.casedir + "/realization-" + str(args.real) + "/" + args.iterdir
+    print("Working with ensemble: ", path)
 
-fout = os.path.join(filepath, filename)
+    ens = ensemble.ScratchEnsemble("single_real", path)
 
-print("Writing csv file: ", fout)
+    smry = ens.get_smry(column_keys=["W*PTH:*"], time_index=args.misfitdate)
 
+    # output data to file
+    filepath = args.scratch + "/" + args.casedir + "/share/misfit/"
+    filename = "wopth_wwpth_wgpth_" + args.misfitdate + ".csv"
 
-smry.to_csv(fout, index=False)
+    os.makedirs(filepath, exist_ok=True)
 
+    fout = os.path.join(filepath, filename)
 
-print("Done")
+    print("Writing csv file: ", fout)
+
+    smry.to_csv(fout, index=False)
+
+    print("Done")
+
+if __name__ == "__main__":
+    main()

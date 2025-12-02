@@ -85,7 +85,7 @@ def extract_tracer_breakthrough_time(
                     file.write(f"{max_bt_time}\n")
 
 
-def main():
+def main() -> None:
     """Parse command line options and start calculation"""
     parser = get_parser()
     args = parser.parse_args()

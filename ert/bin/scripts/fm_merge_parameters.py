@@ -12,7 +12,7 @@ Purpose is to prepend parameters.txt from other ensembles
 """
 
 
-def parse_number(value):
+def parse_number(value) -> int | float:
     """
     Extracted from fmu-ensemble library
 
