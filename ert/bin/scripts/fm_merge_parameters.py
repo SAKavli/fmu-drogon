@@ -8,8 +8,7 @@ import pandas as pd
 
 DESCRIPTION = """
 Purpose is to prepend parameters.txt from other ensembles
-(for example in the case of restart runs). The prepended keys
-can be prefixed with arbitrary text for clarity
+(for example in the case of restart runs).
 """
 
 
@@ -46,7 +45,7 @@ def parse_number(value):
             return value
 
 
-def load_txt(fullpath, prefix=""):
+def load_txt(fullpath):
     """
     Load parameters.txt if it exist and return a dictionary
     Adapted from fmu-ensemble library
@@ -67,7 +66,7 @@ def load_txt(fullpath, prefix=""):
         keyvalues = {}
     new_dict = {}
     for key in keyvalues:
-        new_dict[prefix + key] = parse_number(keyvalues[key])
+        new_dict[key] = parse_number(keyvalues[key])
     return new_dict
 
 
@@ -101,12 +100,9 @@ def main(args=None):
     parsed_args = parser.parse_args(args)
     path_base = parsed_args.path_base
     path_prepend = parsed_args.path_prepend
-    # Remove key_prefix option, the script should fail when new parameters.txt
-    # has conflict with other parameters.txt
-    key_prefix = ""  # parsed_args.prefix
 
     dict_base = load_txt(path_base + "/parameters.txt")
-    dict_prepend = load_txt(path_prepend + "/parameters.txt", key_prefix)
+    dict_prepend = load_txt(path_prepend + "/parameters.txt")
 
     for key in dict_base:
         if key in dict_prepend:

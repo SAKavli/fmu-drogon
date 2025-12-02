@@ -21,6 +21,7 @@ logger = logging.getLogger(__file__)
 W_LIST = ["A1", "A2", "A3", "A4"]
 T_LIST = ["WTPTWT1", "WTPTWT2"]
 
+EPSILON = 0.000001
 
 def get_parser():
     """Construct a parser for command line and for command line help"""
@@ -48,7 +49,7 @@ def extract_tracer_breakthrough_time(
     wells: list[str],
     tracers: list[str],
     max_bt_time: int = 9999,
-):
+) -> None:
     """Determine tracer breakthrough time for a combination of wells and tracers,
     and write results to a text file.
 
@@ -63,9 +64,9 @@ def extract_tracer_breakthrough_time(
     with open(output, "w") as file:
         for tracer in tracers:
             for well in wells:
-                tracer_rows = summary_df[tracer + ":" + well] > 0.000001
+                tracer_rows = summary_df[tracer + ":" + well] > EPSILON
                 if tracer_rows.any():
-                    tbt = summary_df[summary_df[tracer + ":" + well] > 0.000001].index[
+                    tbt = summary_df[summary_df[tracer + ":" + well] > EPSILON].index[
                         0
                     ]
                     diff = tbt - summary_df.index.min()
